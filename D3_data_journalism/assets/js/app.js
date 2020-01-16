@@ -1,12 +1,12 @@
 // @TODO: YOUR CODE HERE!
 var svgWidth = 960;
-var svgHeight = 500;
+var svgHeight = 700;
 
 var margin = {
-  top: 20,
-  right: 40,
-  bottom: 60,
-  left: 100
+  top: 40,
+  right: 90,
+  bottom: 40,
+  left: 90
 };
 
 var width = svgWidth - margin.left - margin.right;
@@ -29,17 +29,17 @@ d = d3.csv("data.csv").then(function(healthData) {
     // ==============================
     healthData.forEach(function(data) {
       data.poverty = +data.poverty;
-      data.healthcare = +data.healthcare;
+      data.obesity = +data.obesity;
     });
     //print(healthData)
     // Step 2: Create scale functions
     // ==============================
     var xLinearScale = d3.scaleLinear()
-      .domain([-2, d3.max(healthData, d => d.poverty)])
+      .domain([8, d3.max(healthData, d => d.poverty)])
       .range([0, width]);
 
     var yLinearScale = d3.scaleLinear()
-      .domain([0, d3.max(healthData, d => d.healthcare)])
+      .domain([20, d3.max(healthData, d => d.obesity)])
       .range([height, 0]);
 
     // Step 3: Create axis functions
@@ -63,10 +63,22 @@ d = d3.csv("data.csv").then(function(healthData) {
     .enter()
     .append("circle")
     .attr("cx", d => xLinearScale(d.poverty))
-    .attr("cy", d => yLinearScale(d.healthcare))
+    .attr("cy", d => yLinearScale(d.obesity))
     .attr("r", "15")
-    .attr("fill", "pink")
+    .attr("fill", "blue")
     .attr("opacity", ".5");
+
+    var circlesGroup = chartGroup.selectAll()
+    .data(healthData)
+    .enter()
+    .append("text")
+    .attr("x", d => xLinearScale(d.poverty))
+    .attr("y", d => yLinearScale(d.obesity))
+    .style("font-size", "13px")
+    .style("text-anchor", "middle")
+    .style('fill', 'white')
+    .text(d => (d.abbr));
+
 
     // Step 6: Initialize tool tip
     // ==============================
@@ -90,6 +102,13 @@ d = d3.csv("data.csv").then(function(healthData) {
       .on("mouseout", function(data, index) {
         toolTip.hide(data);
       });
+
+      circlesGroup.on('mouseover', function(data) {
+        toolTip.show(data,this);
+        })
+        .on('mouseout', function(data) {
+            toolTip.hide(data);
+        });
 
     // Create axes labels
     chartGroup.append("text")
